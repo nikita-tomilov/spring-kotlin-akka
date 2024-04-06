@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
 import ru.ifmo.springkotlinakka.config.AkkaExtension.Companion.EXT_PROV
-import ru.ifmo.springkotlinakka.model.TextMessage
+import ru.ifmo.springkotlinakka.messages.TextMessage
 import scala.concurrent.Await
 import scala.concurrent.duration.FiniteDuration
 import java.util.concurrent.TimeUnit

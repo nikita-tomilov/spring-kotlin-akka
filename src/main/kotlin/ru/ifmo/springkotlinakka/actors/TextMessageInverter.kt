@@ -5,13 +5,12 @@ import mu.KLogging
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
-import ru.ifmo.springkotlinakka.model.TextMessage
+import ru.ifmo.springkotlinakka.messages.TextMessage
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 class TextMessageInverter : UntypedAbstractActor() {
 
-  @Throws(Throwable::class)
   override fun onReceive(message: Any) {
     if (message is TextMessage) {
       val payload = message.payload

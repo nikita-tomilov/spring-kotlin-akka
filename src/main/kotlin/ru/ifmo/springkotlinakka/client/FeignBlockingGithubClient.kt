@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 
 @FeignClient(value = "github", url = "https://api.github.com")
-interface GithubClient {
+interface FeignBlockingGithubClient {
 
   @GetMapping(path = ["/users/{username}/repos"])
   fun fetchRepositories(@PathVariable username: String): List<Any>

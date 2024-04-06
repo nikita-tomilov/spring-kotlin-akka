@@ -7,16 +7,16 @@ import org.springframework.web.bind.annotation.RestController
 import ru.ifmo.springkotlinakka.logic.GithubLogic
 
 @RestController
-class GithubController(
-    @Autowired private val githubLogic: GithubLogic
+class GithubFeignController(
+  @Autowired private val githubLogic: GithubLogic
 ) {
 
-  @GetMapping("/fetch")
+  @GetMapping("/fetchFeign")
   fun fetchHelp(): String {
-    return "Please use /fetch/{username} to fetch repositories summary, example: /fetch/avplatonov"
+    return "Please use /fetchFeign/{username} to fetch repositories summary, example: /fetchFeign/avplatonov"
   }
 
-  @GetMapping("/fetch/{username}")
+  @GetMapping("/fetchFeign/{username}")
   fun fetchRepositoriesSummary(@PathVariable username: String): String {
     return githubLogic.fetchRepositoriesSummary(username)
   }
