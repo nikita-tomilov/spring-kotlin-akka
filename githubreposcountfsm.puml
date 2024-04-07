@@ -1,0 +1,10 @@
+@startuml
+
+[*] --> awaitingExternalRequestBehavior
+awaitingExternalRequestBehavior : Waiting for someone to request me
+awaitingGithubResponseBehavior : I requested Github API actor, waiting for response
+
+awaitingExternalRequestBehavior -> awaitingGithubResponseBehavior: GithubReposCountRequest msg accepted
+awaitingGithubResponseBehavior -> awaitingExternalRequestBehavior: GithubReposResponse msg accepted
+
+@enduml

@@ -1,0 +1,24 @@
+@startuml
+Controller --> GithubReposCountActor: < actor is initialized by spring >
+GithubReposCountActor -> GithubReposCountActor: state: waiting for orig request
+activate Controller
+
+Controller -> GithubReposCountActor: Msg: Get repos count for $username
+
+GithubReposCountActor --> AkkaGithubClientActor: < actor is initialized by spring >
+GithubReposCountActor -> AkkaGithubClientActor: Msg: Get repos for $username
+GithubReposCountActor -> GithubReposCountActor: switch state to\nwaiting for github response,\nyield
+
+AkkaGithubClientActor -> Github: GET /users/$username/repos
+AkkaGithubClientActor -> AkkaGithubClientActor: yield
+
+Github -> AkkaGithubClientActor: 200 OK, json response
+AkkaGithubClientActor -> GithubReposCountActor: Msg: List of repos
+AkkaGithubClientActor -> AkkaGithubClientActor: yield
+GithubReposCountActor -> Controller: Msg: $reposCount
+deactivate Controller
+GithubReposCountActor -> GithubReposCountActor: switch state to\nwaiting for orig request,\nyield
+
+Controller --> GithubReposCountActor: < actor is destroyed by spring (bean-scoped) >
+Controller --> AkkaGithubClientActor: < actor is destroyed by spring (bean-scoped) >
+@enduml
