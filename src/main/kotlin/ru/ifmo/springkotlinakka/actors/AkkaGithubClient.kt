@@ -1,7 +1,7 @@
 package ru.ifmo.springkotlinakka.actors
 
+import akka.actor.AbstractActor
 import akka.actor.Status
-import akka.actor.UntypedAbstractActor
 import akka.http.javadsl.Http
 import akka.http.javadsl.model.HttpRequest
 import akka.http.javadsl.model.HttpResponse
@@ -23,21 +23,22 @@ import ru.ifmo.springkotlinakka.model.GithubRepo
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-class AkkaGithubClient() : UntypedAbstractActor() {
+class AkkaGithubClient : AbstractActor() {
 
   private val om = ObjectMapper().registerKotlinModule()
       .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-  override fun onReceive(message: Any) {
-    if (message is GithubReposRequest) {
-      fetchRepos(message.username)
-    } else {
-      logger.warn { "Unknown message $message" }
-      unhandled(message)
-    }
+  private val behavior = receiveBuilder()
+      .match(GithubReposRequest::class.java, ::fetchRepos)
+      .matchAny { unknownMessage(it) }
+      .build()
+
+  override fun createReceive(): Receive {
+    return behavior
   }
 
-  private fun fetchRepos(username: String) {
+  private fun fetchRepos(request: GithubReposRequest) {
+    val username = request.username
     val httpRequest = HttpRequest.create("https://api.github.com/users/$username/repos")
     val http = Http.get(context().system())
     val system = context().system()
@@ -47,7 +48,7 @@ class AkkaGithubClient() : UntypedAbstractActor() {
         .flatMapConcat { extractEntityData(it) }
         .fold(ByteString.empty()) { acc, b -> acc.concat(b) }
         .map { deserialize(it) }
-        .runWith(Sink.actorRef(sender, Status.Success::status), system)
+        .runWith(Sink.actorRef(sender, Status.Success(null)), system)
   }
 
   private fun extractEntityData(httpResponse: HttpResponse): Source<ByteString, *> {
@@ -63,6 +64,11 @@ class AkkaGithubClient() : UntypedAbstractActor() {
     val response = om.readValue<List<GithubRepo>>(json)
     val reply = GithubReposResponse(response.map { r -> r.name })
     return reply
+  }
+
+  private fun unknownMessage(msg: Any) {
+    logger.warn { "Unknown message $msg" }
+    unhandled(msg)
   }
 
   companion object : KLogging()

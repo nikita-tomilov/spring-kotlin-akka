@@ -18,6 +18,7 @@ class GithubFeignController(
 
   @GetMapping("/fetchFeign/{username}")
   fun fetchRepositoriesSummary(@PathVariable username: String): String {
-    return githubLogic.fetchRepositoriesSummary(username)
+    val count = githubLogic.fetchRepositoriesCount(username)
+    return "User $username has $count repositories\n"
   }
 }

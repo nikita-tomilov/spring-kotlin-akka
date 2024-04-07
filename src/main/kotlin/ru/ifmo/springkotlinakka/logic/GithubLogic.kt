@@ -6,11 +6,11 @@ import ru.ifmo.springkotlinakka.client.FeignBlockingGithubClient
 
 @Service
 class GithubLogic(
-    @Autowired private val feignBlockingGithubClient: FeignBlockingGithubClient
+  @Autowired private val feignBlockingGithubClient: FeignBlockingGithubClient
 ) {
 
-  fun fetchRepositoriesSummary(username: String): String {
+  fun fetchRepositoriesCount(username: String): Int {
     val repos = feignBlockingGithubClient.fetchRepositories(username)
-    return "User $username has ${repos.size} repositories"
+    return repos.size
   }
 }
