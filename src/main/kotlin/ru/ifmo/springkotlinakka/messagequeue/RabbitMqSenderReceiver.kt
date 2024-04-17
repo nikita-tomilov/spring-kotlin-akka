@@ -12,7 +12,7 @@ class RabbitMqSender(
 ) {
 
   @Scheduled(fixedDelay = 3000)
-  fun scheduleFixedDelayTask() {
+  fun sendViaRabbit() {
     val msg = Message("Hello from RabbitMQ!".toByteArray())
     rabbitTemplate.send(RabbitMqConfig.topicExchangeName, "rmq.routingKey", msg)
     logger.warn { "Sent message '${String(msg.body)}'" }
