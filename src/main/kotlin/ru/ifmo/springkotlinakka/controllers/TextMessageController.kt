@@ -34,6 +34,6 @@ class TextMessageController(
     val result = Await.result(future, duration)
 
     val resultMsg = result as TextMessage
-    return resultMsg.payload
+    return resultMsg.payload + "\n"
   }
 }

@@ -1,14 +1,14 @@
 package ru.ifmo.springkotlinakka.actors
 
-import akka.actor.AbstractActor
-import akka.actor.ActorRef
-import akka.actor.Status
+import akka.actor.*
+import akka.pattern.BackoffSupervisor
 import mu.KLogging
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import ru.ifmo.springkotlinakka.config.AkkaExtension
 import ru.ifmo.springkotlinakka.messages.*
+import java.time.Duration
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -27,6 +27,19 @@ class GithubReposCount : AbstractActor() {
 
   override fun createReceive(): Receive {
     return awaitingExternalRequestBehavior
+  }
+
+  override fun supervisorStrategy(): SupervisorStrategy {
+    return OneForOneStrategy(5, Duration.ofSeconds(10)) {
+      when (it) {
+        is IllegalStateException -> {
+          logger.warn { "IllegalStateException caught in $this" }
+          SupervisorStrategy.restart()
+        }
+
+        else -> SupervisorStrategy.escalate()
+      }
+    }
   }
 
   private lateinit var originalRequestSender: ActorRef

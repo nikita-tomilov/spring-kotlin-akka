@@ -20,24 +20,40 @@ import org.springframework.stereotype.Component
 import ru.ifmo.springkotlinakka.messages.GithubReposRequest
 import ru.ifmo.springkotlinakka.messages.GithubReposResponse
 import ru.ifmo.springkotlinakka.model.GithubRepo
+import java.time.Duration
+import java.time.Instant
+import java.util.*
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 class AkkaGithubClient : AbstractActor() {
 
-  private val om = ObjectMapper().registerKotlinModule()
-      .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+  init {
+    logger.warn { "AkkaGithubClient $this created" }
+  }
 
-  private val behavior = receiveBuilder()
-      .match(GithubReposRequest::class.java, ::fetchRepos)
-      .matchAny { unknownMessage(it) }
-      .build()
+  override fun preRestart(reason: Throwable?, message: Optional<Any>) {
+    val msg = message.get()
+    val from = sender
+    logger.warn { "Scheduling message $msg in $this from $from" }
+    context().system().scheduler.scheduleOnce(Duration.ofMillis(800), {
+      logger.warn { "Sending message $msg in $this from $from" }
+      self.tell(msg, from)
+    }, context().dispatcher())
+  }
 
   override fun createReceive(): Receive {
     return behavior
   }
 
   private fun fetchRepos(request: GithubReposRequest) {
+    logger.warn { "Received message $request in $this from $sender" }
+    val now = Instant.now().epochSecond
+    if (now.mod(2) == 0) {
+      logger.warn { "Throwing exception in $this" }
+      throw IllegalStateException("Even seconds are not allowed in $this")
+    }
+
     val username = request.username
     val httpRequest = HttpRequest.create("https://api.github.com/users/$username/repos")
     val http = Http.get(context().system())
@@ -70,6 +86,14 @@ class AkkaGithubClient : AbstractActor() {
     logger.warn { "Unknown message $msg" }
     unhandled(msg)
   }
+
+  private val om = ObjectMapper().registerKotlinModule()
+      .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+  private val behavior = receiveBuilder()
+      .match(GithubReposRequest::class.java, ::fetchRepos)
+      .matchAny { unknownMessage(it) }
+      .build()
 
   companion object : KLogging()
 }

@@ -3,6 +3,7 @@ package ru.ifmo.springkotlinakka.controllers
 import akka.actor.ActorSystem
 import akka.pattern.Patterns
 import akka.util.Timeout
+import mu.KLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -25,9 +26,10 @@ class GithubAkkaController(
 
   @GetMapping("/fetchAkka/{username}")
   fun fetchRepositoriesSummary(@PathVariable username: String): String {
+    logger.warn { "Got request for $username" }
     val actorRef = system.actorOf(AkkaExtension.EXT_PROV.get(system)!!.props("githubReposCount"))
 
-    val duration = FiniteDuration.create(5, TimeUnit.SECONDS)
+    val duration = FiniteDuration.create(15, TimeUnit.SECONDS)
     val timeout: Timeout = Timeout.durationToTimeout(duration)
 
     val future = Patterns.ask(actorRef, GithubReposCountRequest(username), timeout)
@@ -36,4 +38,6 @@ class GithubAkkaController(
     val resultMsg = result as GithubReposCountResponse
     return "User $username has ${resultMsg.count} repositories\n"
   }
+
+  companion object : KLogging()
 }
