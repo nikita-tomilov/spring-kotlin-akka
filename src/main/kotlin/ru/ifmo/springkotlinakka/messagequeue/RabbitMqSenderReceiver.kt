@@ -6,7 +6,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
-// @Component
+@Component
 class RabbitMqSender(
   private val rabbitTemplate: RabbitTemplate
 ) {
@@ -21,7 +21,7 @@ class RabbitMqSender(
   companion object : KLogging()
 }
 
-// @Component
+@Component
 class RabbitMqReceiver {
 
   @Suppress("unused") // Used by RabbitMQ

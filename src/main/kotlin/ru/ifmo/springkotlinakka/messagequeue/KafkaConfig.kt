@@ -13,8 +13,8 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.*
 
 // docker run -p 9092:9092 bashj79/kafka-kraft
-// @Configuration
-// @EnableKafka
+@Configuration
+@EnableKafka
 class KafkaConfig {
 
   companion object {

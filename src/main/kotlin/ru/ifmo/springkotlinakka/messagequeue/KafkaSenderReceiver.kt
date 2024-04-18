@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 import ru.ifmo.springkotlinakka.messagequeue.KafkaConfig.Companion.key
 import ru.ifmo.springkotlinakka.messagequeue.KafkaConfig.Companion.topicName
 
-// @Component
+@Component
 class KafkaSender(private val template: KafkaTemplate<Int, String>) {
 
   companion object : KLogging()
@@ -21,7 +21,7 @@ class KafkaSender(private val template: KafkaTemplate<Int, String>) {
   }
 }
 
-// @Component
+@Component
 class KafkaReceiver {
 
   companion object : KLogging()

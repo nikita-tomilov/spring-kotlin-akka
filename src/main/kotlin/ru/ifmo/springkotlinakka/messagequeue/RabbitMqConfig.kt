@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration
 
 // docker run -p 5671:5671 -p 5672:5672 -p 15671:15671 -p 15672:15672 -e RABBITMQ_DEFAULT_USER=user -e RABBITMQ_DEFAULT_PASS=password rabbitmq:3-management
 // http://localhost:15672/#/
-// @Configuration
+@Configuration
 class RabbitMqConfig {
 
   companion object {
